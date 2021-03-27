@@ -2,8 +2,19 @@
 <html>
   <head>
     <title>Sidescrolling Game</title>
+    <style>
+      
+    </style>
   </head>
   <body>
+    <div id="start">
+      <p>duck, dip, dodge, dip, and dive</p>
+      <button>start game</button>
+    </div>
+    <div id="gameover">
+      <p>You just lost the game!</p>
+      <button>Play again?</button>
+    </div>
     <canvas id="render-canvas" width="960" height="540"></canvas>
     <script>
       class ScrollingSprite {
