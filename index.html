@@ -3,7 +3,12 @@
   <head>
     <title>Sidescrolling Game</title>
     <style>
-      
+      #gameover {
+        display: none;
+      }
+      #render-canvas{
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -65,10 +70,16 @@
           this.speed = speed;
         }
         up() {
-          
+          this.x -= this.speed;
+          if (this.x <= 0) {
+            this.x += this.speed;
+          }
         }
         down() {
-          
+          this.x += this.speed;
+          if (this.x >= 540) {
+            this.x -= this.speed;
+          }
         }
         draw(ctx){
           ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
@@ -93,25 +104,40 @@
           ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
       }
+      var keys = [];
       
-      window.onload = () => {
-        const canvas = document.getElementById("render-canvas");
-        const ctx = canvas.getContext("2d");
-        
-        const spriteArray = [
-        
-        ];
-        
-        const render = () => {
-          ctx.clearRect(0,0,canvas.width, canvas.height);
-          spriteArray.forEach(sprite => {
-            sprite.scroll();
-            sprite.draw(ctx);
-          });
-          window.requestAnimationFrame(render);
+      function keyPressed(e) {
+        if (keys[38]) {
+         player.up(); 
         }
-        render();
+        if (keys[40]) {
+         player.down(); 
+        }
       }
+      
+      document.querySelectorAll("button").forEach( (button) => {
+        button.addEventListener("click", (event) => {
+          document.querySelector("#start").style.display = "none";
+          document.querySelector("#gameover").style.display = "none";
+          document.querySelector("#render-canvas").style.display = "block";
+          const canvas = document.getElementById("render-canvas");
+          const ctx = canvas.getContext("2d");
+          
+          const spriteArray = [
+          
+          ];
+          
+          const render = () => {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            spriteArray.forEach(sprite => {
+              sprite.scroll();
+              sprite.draw(ctx);
+            });
+            window.requestAnimationFrame(render);
+          }
+          render();
+        });
+      });
     </script>
   </body>
 </html>
