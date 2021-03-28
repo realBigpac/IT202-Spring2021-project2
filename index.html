@@ -70,15 +70,15 @@
           this.speed = speed;
         }
         up() {
-          this.x -= this.speed;
-          if (this.x <= 0) {
-            this.x += this.speed;
-          }
-        }
-        down() {
           this.x += this.speed;
           if (this.x >= 540) {
             this.x -= this.speed;
+          }
+        }
+        down() {
+          this.x -= this.speed;
+          if (this.x <= 0) {
+            this.x += this.speed;
           }
         }
         draw(ctx){
@@ -108,11 +108,54 @@
       
       function keyPressed(e) {
         if (keys[38]) {
-         player.up(); 
-        }
-        if (keys[40]) {
          player.down(); 
         }
+        if (keys[40]) {
+         player.up(); 
+        }
+      }
+      
+      function addHarm () {
+        const harmImg = new Image();
+        
+        const harmObj = new HarmObj(paramaters);
+      }
+      
+      function addBene () {
+        const beneImg = new Image();
+        
+        const beneObj = new BenefitObj(parameters);
+      }
+      
+      function gamerules () {
+        const canvas = document.getElementById("render-canvas");
+        const ctx = canvas.getContext("2d");
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let harmObj = 0;
+        let beneCount = 0;
+        
+        const spriteArray = [
+          harmObj
+          beneObj
+        ];
+        const render = () => {
+          ctx.clearRect(0,0,canvas.width, canvas.height);
+          if (harmObj < level) {
+            addHarm();
+          }
+          if (beneCount >= (Math.random()*100)) {
+            addBene();
+          }
+          spriteArray.forEach(sprite => {
+            sprite.scroll();
+            sprite.draw(ctx);
+          });
+          beneCount += 1;
+          window.requestAnimationFrame(render);
+        }
+        render();
       }
       
       document.querySelectorAll("button").forEach( (button) => {
@@ -120,6 +163,7 @@
           document.querySelector("#start").style.display = "none";
           document.querySelector("#gameover").style.display = "none";
           document.querySelector("#render-canvas").style.display = "block";
+          gamerules();
           const canvas = document.getElementById("render-canvas");
           const ctx = canvas.getContext("2d");
           
