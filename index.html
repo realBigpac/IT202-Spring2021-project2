@@ -13,12 +13,13 @@
   </head>
   <body>
     <div id="start">
-      <p>duck, dip, dodge, dip, and dive</p>
-      <button>start game</button>
+      <p>Grab the coins to gain points!</p>
+      <p>Dodge bullets to maintain your lives!</p>
+      <button>Start Game</button>
     </div>
     <div id="gameover">
       <p>You just lost the game!</p>
-      <button>Play again?</button>
+      <button>Play Again?</button>
     </div>
     <canvas id="render-canvas" width="960" height="540"></canvas>
     <script>
@@ -104,9 +105,13 @@
           ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
       }
+
+      window.addEventListener("keydown", keysPressed, false);
+      window.addEventListener("keyup", keysReleased, false);
+
       var keys = [];
       
-      function keyPressed(e) {
+      function keysPressed(e) {
         if (keys[38]) {
          player.down(); 
         }
@@ -114,17 +119,21 @@
          player.up(); 
         }
       }
+
+      function keysReleased(e) {
+        keys[e.keyCode] = false;
+      }
       
       function addHarm (level) {
         const harmImg = new Image();
-        
-        const harmObj = new HarmObj(paramaters);
+        harmImg.src = "./assets/Bullet";
+        const harmObj = new HarmObj(harmImg, paramaters);
       }
       
       function addBene (level) {
         const beneImg = new Image();
-        
-        const beneObj = new BenefitObj(parameters);
+        beneImg.src = "./assets/coin";
+        const beneObj = new BenefitObj(beneImg, parameters);
       }
 
       function areColliding (obj1, obj2) {
@@ -145,45 +154,54 @@
         let lives = 3;
         let harmObj = 0;
         let beneCount = 0;
+        const backgroundImg = new Image();
+        backgroundImg.src = "./assets/Background.png";
+        const backgroundSprite = new ScrollingSprite(backgroundImg, 0, 0, canvas.width, canvas.height, 1);
         const playerImg = new Image();
-        
-        const playerObj = new playerObj(parameters);
+        playerImg.src = "./assets/Player.png";
+        const player = new playerObj(playerImg, parameters);
+        let harmObjs = [];
+        let beneObjs = [];
+        const spriteArray = [
+
+        ];
         const render = () => {
           ctx.clearRect(0,0,canvas.width, canvas.height);
           if (lives <= 0) {
             document.querySelector("#render-canvas").style.display = "none";
             document.querySelector("#gameover").style.display = "block";
-            break;
+            window.cancelAnimationFrame(render);
+          }
+          if (score >= ((level * 100) + (50 * level))) {
+            level += 1;
           }
           if (harmObj < level) {
             addHarm(level);
           }
-          if (beneCount >= (Math.random()*100)) {
+          if (beneCount >= (Math.random() * 100 + level)) {
             addBene(level);
           }
-          let harmObjs = [];
-          let beneObjs = [];
           harmObjs.forEach(object => {
             let curr = object;
-            for (let i = 0; i < harmObjs.length; i++) {
-              if (areColliding(curr, harmObjs[i]) && curr != object) {
-                lives -= 1;
-              }
+            if (areColliding(curr, player) && curr != object) {
+              lives -= 1;
             }
             object.scroll();
             object.draw(ctx);
           });
           beneObjs.forEach(object => {
             let curr = object;
-            for (let i = 0; i < beneObjs.length; i++) {
-              if (areColliding(curr, beneObjs[i]) && curr != object) {
-                score += 50;
-              }
+            if (areColliding(curr, player) && curr != object) {
+              score += 100;
             }
             object.scroll();
             object.draw(ctx);
           });
-          ctx.font = "";
+          spriteArray.forEach(sprite => {
+            sprite.scroll();
+            sprite.draw(ctx);
+          });
+          ctx.font = "20px serif";
           ctx.fillText("Lives: " + lives,);
           ctx.fillText("Level: " + level,);
           ctx.fillText("Score: " + score,);
