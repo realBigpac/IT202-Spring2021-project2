@@ -18,7 +18,7 @@
       <button>Start Game</button>
     </div>
     <div id="gameover">
-      <p>You just lost the game!</p>
+      <p>You just lost the game! (refresh to play again)</p>
       <button>Play Again?</button>
     </div>
     <canvas id="render-canvas" width="960" height="540"></canvas>
@@ -107,6 +107,8 @@
       }
       const canvas = document.getElementById("render-canvas");
       const ctx = canvas.getContext("2d");
+      var upPointer;
+      var downPointer; 
 
       window.addEventListener("keydown", keysPressed, false);
       window.addEventListener("keyup", keysReleased, false);
@@ -116,16 +118,29 @@
       let beneObjs = [];
       
       function keysPressed(e) {
-        if (keys[38]) {
-         player.down(); 
-        }
-        if (keys[40]) {
-         player.up(); 
+        if (e.keycode == 38) {
+          if (!downPointer) {
+            downPointer = setInterval(function () {
+              player.down();
+            });
+          }
+        } else if (e.keycode == 40) {
+          if(!upPointer) {
+            upPointer = setInterval(function () {
+              player.up();
+            });
+          }
         }
       }
 
       function keysReleased(e) {
-        keys[e.keyCode] = false;
+        if (e.keycode == 38) {
+          clearInterval(downPointer);
+          downPointer = "";
+        } else if (e.keycode == 40) {
+          clearInterval(upPointer);
+          upPointer = "";
+        }
       }
       
       function addHarm (level) {
@@ -152,10 +167,10 @@
         return false;
       }
       
-      function gamerules () {
-        let score = 0;
-        let level = 1;
-        let lives = 3;
+      function gamerules (startScore, startLevel, startLives) {
+        let score = startScore;
+        let level = startLevel;
+        let lives = startLives;
         let harmObj = 0;
         let beneCount = 0;
         const backgroundImg = new Image();
@@ -165,6 +180,9 @@
         const playerImg = new Image();
         playerImg.src = "./assets/Player.png";
         const player = new playerObj(playerImg, 0, 0, 75, 125, 10);
+        const playerModel = [
+          player
+        ];
         const spriteArray = [
           backgroundSprite,
           backgroundSprite2
@@ -189,9 +207,10 @@
             sprite.scroll();
             sprite.draw(ctx);
           });
+          player.draw(ctx);
           harmObjs.forEach(object => {
             let curr = object;
-            if (areColliding(curr, player) && curr != object) {
+            if (areColliding(curr, player)) {
               lives -= 1;
             }
             object.scroll();
@@ -199,7 +218,7 @@
           });
           beneObjs.forEach(object => {
             let curr = object;
-            if (areColliding(curr, player) && curr != object) {
+            if (areColliding(curr, player)) {
               score += 100;
             }
             object.scroll();
@@ -220,7 +239,7 @@
           document.querySelector("#start").style.display = "none";
           document.querySelector("#gameover").style.display = "none";
           document.querySelector("#render-canvas").style.display = "block";
-          gamerules();
+          gamerules(0, 1, 3);
         });
       });
     </script>
