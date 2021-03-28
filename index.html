@@ -35,14 +35,14 @@
         scroll(){
           this.x -= this.speed;
           if (this.x <= -this.width) {
-            this.x = this.width - 1;
+            this.x = this.width + 950 - 1;
           }
         }
         draw(ctx){
           ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
       }
-      class benefitObj {
+      class BenefitObj {
         constructor(image, x, y, width, height, speed){
           this.image = image;
           this.x = x;
@@ -54,7 +54,7 @@
         scroll(){
           this.x -= this.speed;
           if (this.x <= -this.width) {
-            this.x = this.width - 1;
+            this.x = this.width + 945 - 1;
           }
         }
         draw(ctx){
@@ -105,11 +105,15 @@
           ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
       }
+      const canvas = document.getElementById("render-canvas");
+      const ctx = canvas.getContext("2d");
 
       window.addEventListener("keydown", keysPressed, false);
       window.addEventListener("keyup", keysReleased, false);
 
       var keys = [];
+      let harmObjs = [];
+      let beneObjs = [];
       
       function keysPressed(e) {
         if (keys[38]) {
@@ -126,14 +130,16 @@
       
       function addHarm (level) {
         const harmImg = new Image();
-        harmImg.src = "./assets/Bullet";
-        const harmObj = new HarmObj(harmImg, paramaters);
+        harmImg.src = "./assets/Bullet.png";
+        const harmObj = new HarmObj(harmImg, canvas.width, Math.random() * 535, 25, 10, 2 + (level - 1));
+        harmObjs.push(harmObj);
       }
       
       function addBene (level) {
         const beneImg = new Image();
-        beneImg.src = "./assets/coin";
-        const beneObj = new BenefitObj(beneImg, parameters);
+        beneImg.src = "./assets/coin.png";
+        const beneObj = new BenefitObj(beneImg, canvas.width, Math.random() * 535, 25, 25, 5);
+        beneObjs.push(beneObj);
       }
 
       function areColliding (obj1, obj2) {
@@ -147,8 +153,6 @@
       }
       
       function gamerules () {
-        const canvas = document.getElementById("render-canvas");
-        const ctx = canvas.getContext("2d");
         let score = 0;
         let level = 1;
         let lives = 3;
@@ -157,13 +161,13 @@
         const backgroundImg = new Image();
         backgroundImg.src = "./assets/Background.png";
         const backgroundSprite = new ScrollingSprite(backgroundImg, 0, 0, canvas.width, canvas.height, 1);
+        const backgroundSprite2 = new ScrollingSprite(backgroundImg, -canvas.width, 0, canvas.width, canvas.height, 1);
         const playerImg = new Image();
         playerImg.src = "./assets/Player.png";
-        const player = new playerObj(playerImg, parameters);
-        let harmObjs = [];
-        let beneObjs = [];
+        const player = new playerObj(playerImg, 0, 0, 75, 125, 10);
         const spriteArray = [
-
+          backgroundSprite,
+          backgroundSprite2
         ];
         const render = () => {
           ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -175,12 +179,16 @@
           if (score >= ((level * 100) + (50 * level))) {
             level += 1;
           }
-          if (harmObj < level) {
+          if (harmObjs.length < level) {
             addHarm(level);
           }
-          if (beneCount >= (Math.random() * 100 + level)) {
+          if (beneCount >= (Math.random() * 100 + level) && beneObjs.length < level) {
             addBene(level);
           }
+          spriteArray.forEach(sprite => {
+            sprite.scroll();
+            sprite.draw(ctx);
+          });
           harmObjs.forEach(object => {
             let curr = object;
             if (areColliding(curr, player) && curr != object) {
@@ -197,14 +205,10 @@
             object.scroll();
             object.draw(ctx);
           });
-          spriteArray.forEach(sprite => {
-            sprite.scroll();
-            sprite.draw(ctx);
-          });
           ctx.font = "20px serif";
-          ctx.fillText("Lives: " + lives,);
-          ctx.fillText("Level: " + level,);
-          ctx.fillText("Score: " + score,);
+          ctx.fillText("Lives: " + lives, 0, 480);
+          ctx.fillText("Level: " + level, 0, 500);
+          ctx.fillText("Score: " + score, 0, 520);
           beneCount += 1;
           window.requestAnimationFrame(render);
         }
