@@ -115,16 +115,26 @@
         }
       }
       
-      function addHarm () {
+      function addHarm (level) {
         const harmImg = new Image();
         
         const harmObj = new HarmObj(paramaters);
       }
       
-      function addBene () {
+      function addBene (level) {
         const beneImg = new Image();
         
         const beneObj = new BenefitObj(parameters);
+      }
+
+      function areColliding (obj1, obj2) {
+        let dx = obj1.x - obj2.x;
+        let dy = obj1.y - obj2.y;
+        let distance = Math.sqrt(dx*dx+dy*dy);
+        if ((distance < obj1.width/2 + obj2.width/2) || (distance < obj1.height/2 + obj2.height/2)) {
+          return true;
+        }
+        return false;
       }
       
       function gamerules () {
@@ -135,23 +145,48 @@
         let lives = 3;
         let harmObj = 0;
         let beneCount = 0;
+        const playerImg = new Image();
         
-        const spriteArray = [
-          harmObj
-          beneObj
-        ];
+        const playerObj = new playerObj(parameters);
         const render = () => {
           ctx.clearRect(0,0,canvas.width, canvas.height);
+          if (lives <= 0) {
+            document.querySelector("#render-canvas").style.display = "none";
+            document.querySelector("#gameover").style.display = "block";
+            break;
+          }
           if (harmObj < level) {
-            addHarm();
+            addHarm(level);
           }
           if (beneCount >= (Math.random()*100)) {
-            addBene();
+            addBene(level);
           }
-          spriteArray.forEach(sprite => {
-            sprite.scroll();
-            sprite.draw(ctx);
+          let harmObjs = [];
+          let beneObjs = [];
+          harmObjs.forEach(object => {
+            let curr = object;
+            for (let i = 0; i < harmObjs.length; i++) {
+              if (areColliding(curr, harmObjs[i]) && curr != object) {
+                lives -= 1;
+              }
+            }
+            object.scroll();
+            object.draw(ctx);
           });
+          beneObjs.forEach(object => {
+            let curr = object;
+            for (let i = 0; i < beneObjs.length; i++) {
+              if (areColliding(curr, beneObjs[i]) && curr != object) {
+                score += 50;
+              }
+            }
+            object.scroll();
+            object.draw(ctx);
+          });
+          ctx.font = "";
+          ctx.fillText("Lives: " + lives,);
+          ctx.fillText("Level: " + level,);
+          ctx.fillText("Score: " + score,);
           beneCount += 1;
           window.requestAnimationFrame(render);
         }
@@ -164,22 +199,6 @@
           document.querySelector("#gameover").style.display = "none";
           document.querySelector("#render-canvas").style.display = "block";
           gamerules();
-          const canvas = document.getElementById("render-canvas");
-          const ctx = canvas.getContext("2d");
-          
-          const spriteArray = [
-          
-          ];
-          
-          const render = () => {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            spriteArray.forEach(sprite => {
-              sprite.scroll();
-              sprite.draw(ctx);
-            });
-            window.requestAnimationFrame(render);
-          }
-          render();
         });
       });
     </script>
