@@ -112,10 +112,25 @@
 
       window.addEventListener("keydown", keysPressed, false);
       window.addEventListener("keyup", keysReleased, false);
+      window.addEventListener("deviceorientation", deviceTilt, false);
 
       var keys = [];
       let harmObjs = [];
       let beneObjs = [];
+
+      if (window.screen.width > 1600 && window.screen.height > 900) {
+        canvas.setAttribute("width", 1500)
+        canvas.setAttribute("height", 850);
+      }
+
+      function deviceTilt() {
+        let tilt = event.beta
+        if (tilt > 0) {
+          player.up();
+        } else if (tilt < 0) {
+          player.down();
+        }
+      }
       
       function keysPressed(e) {
         if (e.keycode == 38) {
